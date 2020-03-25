@@ -51,9 +51,11 @@ export function clearElement(element) {
 
 // https://javascript.info/size-and-scroll-window
 // `<!DOCTYPE html>` may be required in order for this to work correctly.
+// Includes scrollbar (if any).
 export function getScreenWidth() {
 	// Correctly reflects page zoom in iOS Safari.
 	// (scales screen width accordingly).
+	// But, includes scrollbar (if any).
 	return window.innerWidth
 }
 
@@ -71,6 +73,7 @@ export function getScreenWidth() {
 // https://javascript.info/size-and-scroll-window
 // `<!DOCTYPE html>` is required in order for this to work correctly.
 // Without it, the returned height would be the height of the entire document.
+// Includes scrollbar (if any).
 export function getScreenHeight() {
 	// This variant of `getScreenHeight()`
 	// supports iOS Safari's dynamically shown/hidden
@@ -79,6 +82,7 @@ export function getScreenHeight() {
 	// Tested in IE 11.
 	// It also correctly reflects page zoom in iOS Safari.
 	// (scales screen height accordingly).
+	// But, includes scrollbar (if any).
 	return window.innerHeight
 }
 
