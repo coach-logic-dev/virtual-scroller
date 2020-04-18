@@ -278,8 +278,11 @@ export default class VirtualScroller {
 	}
 
 	onMount() {
-		this.onInitialRender('mount')
+		// `this.isMounted = true` should be the first statement in this function,
+		// because otherwise `DOMVirtualScroller` would enter an infinite re-render loop
+		// if `this.onInitialRender('mount')` is called before setting `this.isMounted` to `true`.
 		this.isMounted = true
+		this.onInitialRender('mount')
 		this.screenWidth = getScreenWidth()
 		this.screenHeight = getScreenHeight()
 		this.restoreScrollPosition()
