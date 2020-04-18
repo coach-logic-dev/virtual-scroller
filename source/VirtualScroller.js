@@ -1,4 +1,3 @@
-import shallowEqual from './shallowEqual'
 import {
 	getOffset,
 	getScrollY,
@@ -7,10 +6,18 @@ import {
 	getScreenBounds,
 	clearElement
 } from './DOM'
+
+import {
+	supportsTbody,
+	reportTbodyIssue,
+	addTbodyStyles,
+	setTbodyPadding
+} from './tbody'
+
 import ItemHeights from './ItemHeights'
 import log, { isDebug } from './log'
 import { debounce } from './utility'
-import { addTbodyStyles, setTbodyPadding } from './tbody'
+import shallowEqual from './shallowEqual'
 
 const WATCH_CONTAINER_ELEMENT_TOP_COORDINATE_INTERVAL = 500
 const WATCH_CONTAINER_ELEMENT_TOP_COORDINATE_MAX_DURATION = 3000
@@ -69,8 +76,9 @@ export default class VirtualScroller {
 		if (tbody) {
 			log('~ <tbody/> detected ~')
 			this.tbody = true
-			if (addTbodyStyles(getContainerNode()) === false) {
+			if (!supportsTbody()) {
 				log('~ <tbody/> not supported ~')
+				reportTbodyIssue()
 				bypass = true
 			}
 		}
@@ -312,6 +320,7 @@ export default class VirtualScroller {
 		// Work around `<tbody/>` not being able to have `padding`.
 		// https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
 		if (this.tbody) {
+			addTbodyStyles(this.getContainerNode())
 			this.updateTbodyPadding()
 		}
 	}
