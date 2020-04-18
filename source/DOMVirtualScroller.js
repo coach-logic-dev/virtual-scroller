@@ -46,7 +46,7 @@ export default class DOMVirtualScroller {
     const diffRender = prevState && items === prevState.items && prevState.items.length > 0
     // Remove no longer visible items from the DOM.
     if (diffRender) {
-      log('Incremental render')
+      log('Incremental rerender')
       // Decrement instead of increment here because
       // `this.container.removeChild()` changes indexes.
       let i = prevState.lastShownItemIndex
@@ -61,7 +61,7 @@ export default class DOMVirtualScroller {
         i--
       }
     } else {
-      log('Clean render')
+      log('Rerender from scratch')
       while (this.container.firstChild) {
         this.unmountItem(this.container.firstChild)
       }
@@ -80,11 +80,11 @@ export default class DOMVirtualScroller {
       } else {
         const item = this.renderItem(items[i])
         if (shouldPrependItems) {
-          log('Prepend item', i)
+          log('Prepend item index', i)
           // Append `item` to `this.container` before the retained items.
           this.container.insertBefore(item, prependBeforeItemElement)
         } else {
-          log('Append item', i)
+          log('Append item index', i)
           // Append `item` to `this.container`.
           this.container.appendChild(item)
         }
