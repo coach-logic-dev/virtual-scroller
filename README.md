@@ -6,13 +6,13 @@ An open-source implementation of Twitter's [`VirtualScroller`](https://medium.co
 
 DOM (no frameworks):
 
-* [Basic](https://catamphetamine.github.io/virtual-scroller/index-dom.html)
-* [Dynamically loaded](https://catamphetamine.github.io/virtual-scroller/index-dom.html?dynamic=✓)
+* [Basic](https://catamphetamine.gitlab.io/virtual-scroller/index-dom.html)
+* [Dynamically loaded](https://catamphetamine.gitlab.io/virtual-scroller/index-dom.html?dynamic=✓)
 
 React:
 
-* [Basic](https://catamphetamine.github.io/virtual-scroller/)
-* [Dynamically loaded](https://catamphetamine.github.io/virtual-scroller/?dynamic=✓)
+* [Basic](https://catamphetamine.gitlab.io/virtual-scroller/)
+* [Dynamically loaded](https://catamphetamine.gitlab.io/virtual-scroller/?dynamic=✓)
 
 ## Rationale
 
@@ -34,7 +34,7 @@ There's also an ["RFC"](https://github.com/WICG/virtual-scroller) for a native `
 
 It works by measuring each list item's height as it's being rendered and then as the user scrolls it hides the items which are no longer visible and shows the now-visible items as they're scrolled to. The hidden items on top are compensated by setting `padding-top` on the container, and the hidden items on the bottom are compensated by setting `padding-bottom` on the container. The component listens to `scroll` / `resize` events and re-renders the currently visible items as the user scrolls (or if the browser window is resized).
 
-Go to the [demo](https://catamphetamine.github.io/virtual-scroller) page, open Developer Tools ("Elements" tab), find `<div id="root"/>` element, expand it, see `<div id="messages"/>` element, expand it and observe the changes to it while scrolling the page.
+Go to the [demo](https://catamphetamine.gitlab.io/virtual-scroller) page, open Developer Tools ("Elements" tab), find `<div id="root"/>` element, expand it, see `<div id="messages"/>` element, expand it and observe the changes to it while scrolling the page.
 
 List items can also have inter-item spacing via `margin-top` / `margin-bottom` or `border-top` / `border-bottom`, see the [Gotchas](#gotchas) section for more details on how to do that properly.
 
@@ -112,7 +112,7 @@ Available `options`:
 
 ### DOM
 
-This is an example of using `virtual-scroller/dom` component. It's the source code of the [DOM demo](https://catamphetamine.github.io/virtual-scroller/index-dom.html).
+This is an example of using `virtual-scroller/dom` component. It's the source code of the [DOM demo](https://catamphetamine.gitlab.io/virtual-scroller/index-dom.html).
 
 ```js
 import VirtualScroller from 'virtual-scroller/dom'
@@ -179,7 +179,7 @@ Additional `options`:
 
 ### React
 
-This is an example of using the React `virtual-scroller/react` component. It's the source code of the [React demo](https://catamphetamine.github.io/virtual-scroller).
+This is an example of using the React `virtual-scroller/react` component. It's the source code of the [React demo](https://catamphetamine.gitlab.io/virtual-scroller).
 
 ```js
 import React from 'react'
@@ -291,7 +291,7 @@ The previous examples showcase a static `items` list. For cases when new items a
 `virtualScroller.setItems(newItems)` also receives an optional second `options` argument having shape `{ state }` where `state` can be used for updating "custom state" previously set in `getInitialState(customState)` and can be an `object` or a function `(previousState, { prependedCount, appendedCount }) => object`. If the items update is not incremental (i.e. if `newItems` doesn't contain previous `items`) then both `prependedCount` and `appendedCount` will be `undefined`.
 -->
 
-Also, one can use [`on-scroll-to`](https://github.com/catamphetamine/on-scroll-to) library to render a "Load more items on scroll down" component for "infinite scroll" lists.
+Also, one can use [`on-scroll-to`](https://gitlab.com/catamphetamine/on-scroll-to) library to render a "Load more items on scroll down" component for "infinite scroll" lists.
 
 ## Gotchas
 
