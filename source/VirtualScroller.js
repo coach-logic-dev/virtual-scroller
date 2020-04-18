@@ -211,7 +211,7 @@ export default class VirtualScroller {
 
 	getEstimatedItemsCountOnScreen() {
 		if (typeof window !== 'undefined') {
-			return this.getEstimatedItemsCount(window.innerHeight)
+			return this.getEstimatedItemsCount(this.getMargin() * 2 + window.innerHeight)
 		} else {
 			return 1
 		}
