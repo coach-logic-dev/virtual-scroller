@@ -37,11 +37,11 @@ export default class VirtualScroller {
 			shouldUpdateLayoutOnWindowResize,
 			measureItemsBatchSize,
 			tbody,
-			bypass,
 			// bypassBatchSize
 		} = options
 
 		let {
+			bypass,
 			// margin,
 			estimatedItemHeight,
 			// getItemState,
@@ -64,6 +64,21 @@ export default class VirtualScroller {
 		// 	margin = typeof window === 'undefined' ? 0 : window.innerHeight
 		// }
 
+		// Work around `<tbody/>` not being able to have `padding`.
+		// https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
+		if (tbody) {
+			log('~ <tbody/> detected ~')
+			this.tbody = true
+			if (addTbodyStyles(getContainerNode()) === false) {
+				log('~ <tbody/> not supported ~')
+				bypass = true
+			}
+		}
+
+		if (bypass) {
+			log('~ "bypass" mode ~')
+		}
+
 		// In `bypass` mode, `VirtualScroller` doesn't wait
 		// for the user to scroll down to render all items:
 		// instead, it renders all items right away, as if
@@ -85,13 +100,6 @@ export default class VirtualScroller {
 
 		this._shouldUpdateLayoutOnWindowResize = shouldUpdateLayoutOnWindowResize
 		this.measureItemsBatchSize = measureItemsBatchSize === undefined ? 50 : measureItemsBatchSize
-
-		// Work around `<tbody/>` not being able to have `padding`.
-		// https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
-		if (tbody) {
-			log('~ <tbody/> detected ~')
-			this.tbody = true
-		}
 
 		if (onItemFirstRender) {
 			this.onItemFirstRender = onItemFirstRender
@@ -304,7 +312,6 @@ export default class VirtualScroller {
 		// Work around `<tbody/>` not being able to have `padding`.
 		// https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
 		if (this.tbody) {
-			addTbodyStyles(this.getContainerNode())
 			this.updateTbodyPadding()
 		}
 	}
