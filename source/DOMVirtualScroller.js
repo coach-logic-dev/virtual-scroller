@@ -12,11 +12,13 @@ export default class DOMVirtualScroller {
       ...restOptions
     } = options
     this.onItemUnmount = onItemUnmount
+    this.tbody = this.container.tagName === 'TBODY'
     this.virtualScroller = new VirtualScroller(
       () => this.container,
       items,
       {
         ...restOptions,
+        tbody: this.tbody,
         onStateChange: this.onStateChange
       }
     )
@@ -40,8 +42,14 @@ export default class DOMVirtualScroller {
     log('Previous state', prevState)
     log('New state', state)
     // Set container padding top and bottom.
-    this.container.style.paddingTop = px(beforeItemsHeight)
-    this.container.style.paddingBottom = px(afterItemsHeight)
+    // Work around `<tbody/>` not being able to have `padding`.
+    // https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
+    // `this.virtualScroller` hasn't been initialized yet at this stage,
+    // so using `this.tbody` instead of `this.virtualScroller.tbody`.
+    if (!this.tbody) {
+      this.container.style.paddingTop = px(beforeItemsHeight)
+      this.container.style.paddingBottom = px(afterItemsHeight)
+    }
     // Perform an intelligent "diff" re-render if the `items` are the same.
     const diffRender = prevState && items === prevState.items && prevState.items.length > 0
     // Remove no longer visible items from the DOM.

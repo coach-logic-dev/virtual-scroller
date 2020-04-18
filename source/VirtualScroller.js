@@ -10,6 +10,7 @@ import {
 import ItemHeights from './ItemHeights'
 import log, { isDebug } from './log'
 import { debounce } from './utility'
+import { addTbodyStyles, setTbodyPadding } from './tbody'
 
 const WATCH_CONTAINER_ELEMENT_TOP_COORDINATE_INTERVAL = 500
 const WATCH_CONTAINER_ELEMENT_TOP_COORDINATE_MAX_DURATION = 3000
@@ -35,6 +36,7 @@ export default class VirtualScroller {
 			preserveScrollPositionAtBottomOnMount,
 			shouldUpdateLayoutOnWindowResize,
 			measureItemsBatchSize,
+			tbody,
 			bypass,
 			// bypassBatchSize
 		} = options
@@ -83,6 +85,13 @@ export default class VirtualScroller {
 
 		this._shouldUpdateLayoutOnWindowResize = shouldUpdateLayoutOnWindowResize
 		this.measureItemsBatchSize = measureItemsBatchSize === undefined ? 50 : measureItemsBatchSize
+
+		// Work around `<tbody/>` not being able to have `padding`.
+		// https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
+		if (tbody) {
+			log('~ <tbody/> detected ~')
+			this.tbody = true
+		}
 
 		if (onItemFirstRender) {
 			this.onItemFirstRender = onItemFirstRender
@@ -292,6 +301,12 @@ export default class VirtualScroller {
 			window.addEventListener('scroll', this.onScroll)
 			window.addEventListener('resize', this.onResize)
 		}
+		// Work around `<tbody/>` not being able to have `padding`.
+		// https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
+		if (this.tbody) {
+			addTbodyStyles(this.getContainerNode())
+			this.updateTbodyPadding()
+		}
 	}
 
 	onInitialRender(reason) {
@@ -424,7 +439,20 @@ export default class VirtualScroller {
 			// 	this.adjustScrollPositionIfNeeded(i, prevItemHeights[i])
 			// 	i++
 			// }
+			if (this.tbody) {
+				this.updateTbodyPadding()
+			}
 		}
+	}
+
+  /**
+   * Is part of a workaround for `<tbody/>` not being able to have `padding`.
+   * https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
+   * CSS variables aren't supported in Internet Explorer.
+   */
+	updateTbodyPadding() {
+		const { beforeItemsHeight, afterItemsHeight } = this.getState()
+		setTbodyPadding(this.getContainerNode(), beforeItemsHeight, afterItemsHeight)
 	}
 
 	updateItemHeights(fromIndex, toIndex) {
