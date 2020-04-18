@@ -54,7 +54,7 @@ export default class DOMVirtualScroller {
         if (i >= firstShownItemIndex && i <= lastShownItemIndex) {
           // The item is still being shown.
         } else {
-          log('Remove item', i)
+          log('Remove item index', i)
           // The item is no longer visible so remove it from the DOM.
           this.unmountItem(this.container.childNodes[i - prevState.firstShownItemIndex])
         }
