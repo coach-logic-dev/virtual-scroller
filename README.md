@@ -336,7 +336,7 @@ An example of a `:first-child`/`:last-child` style that will not work correctly 
 
 ### `<tbody/>`
 
-Due to the [inherent limitations](https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1) of the `<tbody/>` HTML tag, when used as a container for the list items, a workaround involving CSS variables has to be used, and CSS variables aren't supported in Internet Explorer, so using a `<tbody/>` as a list items container won't work in Internet Explorer.
+Due to the [inherent limitations](https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1) of the `<tbody/>` HTML tag, when used as a container for the list items, a workaround involving CSS variables has to be used, and CSS variables aren't supported in Internet Explorer, so using a `<tbody/>` as a list items container won't work in Internet Explorer: in such case, `VirtualScroller` renders in "bypass" mode (render all items).
 
 ### Search, focus management.
 
