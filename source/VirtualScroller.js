@@ -39,6 +39,8 @@ export default class VirtualScroller {
 			preserveScrollPositionAtBottomOnMount,
 			shouldUpdateLayoutOnWindowResize,
 			measureItemsBatchSize,
+			// `getScrollableContainer` option is deprecated.
+			// Use `scrollableContainer` instead.
 			getScrollableContainer,
 			tbody,
 			// bypassBatchSize
@@ -50,6 +52,7 @@ export default class VirtualScroller {
 			estimatedItemHeight,
 			// getItemState,
 			onItemFirstRender,
+			scrollableContainer,
 			state
 		} = options
 
@@ -61,8 +64,13 @@ export default class VirtualScroller {
 			items = state.items
 		}
 
-		if (getScrollableContainer) {
-			this.scrollableContainer = new ScrollableContainer(getScrollableContainer)
+		// `getScrollableContainer` option is deprecated.
+		// Use `scrollableContainer` instead.
+		if (!scrollableContainer && getScrollableContainer) {
+			scrollableContainer = getScrollableContainer()
+		}
+		if (scrollableContainer) {
+			this.scrollableContainer = new ScrollableContainer(scrollableContainer)
 		} else {
 			this.scrollableContainer = new ScrollableWindowContainer()
 		}

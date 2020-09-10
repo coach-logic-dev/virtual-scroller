@@ -1,56 +1,58 @@
 import {
 	getScrollY,
 	getScreenHeight,
-	getScreenWidth,
-	clearElement
+	getScreenWidth
 } from './DOM'
 
 export default class ScrollableContainer {
-	constructor(getElement) {
-		this.getElement = getElement
+	constructor(element) {
+		this.element = element
 	}
 
 	getScrollY() {
-		return this.getElement().scrollTop
+		return this.element.scrollTop
 	}
 
 	scrollTo(scrollX, scrollY) {
-		this.getElement().scrollTo(scrollX, scrollY)
+		this.element.scrollTo(scrollX, scrollY)
 	}
 
 	getWidth() {
-		return this.getElement().offsetWidth
+		return this.element.offsetWidth
 	}
 
 	getHeight() {
-		return this.getElement().offsetHeight
+		// if (!this.element && !precise) {
+		// 	return getScreenHeight()
+		// }
+		return this.element.offsetHeight
 	}
 
 	getContentHeight() {
-		return this.getElement().scrollHeight
+		return this.element.scrollHeight
 	}
 
 	getTopOffset(element) {
-		const scrollableContainerTop = this.getElement().getBoundingClientRect().top
-		const scrollableContainerBorderTopWidth = this.getElement().clientTop
+		const scrollableContainerTop = this.element.getBoundingClientRect().top
+		const scrollableContainerBorderTopWidth = this.element.clientTop
 		const top = element.getBoundingClientRect().top
 		return (top - scrollableContainerTop) + this.getScrollY() - scrollableContainerBorderTopWidth
 	}
 
 	// isVisible() {
-	// 	const { top, bottom } = this.getElement().getBoundingClientRect()
+	// 	const { top, bottom } = this.element.getBoundingClientRect()
 	// 	return bottom > 0 && top < getScreenHeight()
 	// }
 
 	addScrollListener(listener) {
-		this.getElement().addEventListener('scroll', listener)
-		return () => this.getElement().removeEventListener('scroll', listener)
+		this.element.addEventListener('scroll', listener)
+		return () => this.element.removeEventListener('scroll', listener)
 	}
 }
 
 export class ScrollableWindowContainer extends ScrollableContainer {
 	constructor() {
-		super(() => window)
+		super(window)
 	}
 
 	getScrollY() {

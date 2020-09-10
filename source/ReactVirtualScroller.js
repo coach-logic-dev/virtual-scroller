@@ -29,6 +29,9 @@ export default class ReactVirtualScroller extends React.Component {
 		preserveScrollPositionAtBottomOnMount: PropTypes.bool,
 		shouldUpdateLayoutOnWindowResize: PropTypes.func,
 		measureItemsBatchSize: PropTypes.number,
+		scrollableContainer: PropTypes.any,
+		// `getScrollableContainer` property is deprecated.
+		// Use `scrollableContainer` instead.
 		getScrollableContainer: PropTypes.func,
 		className: PropTypes.string,
 		onMount: PropTypes.func,
@@ -87,6 +90,9 @@ export default class ReactVirtualScroller extends React.Component {
 			estimatedItemHeight,
 			preserveScrollPositionAtBottomOnMount,
 			measureItemsBatchSize,
+			scrollableContainer,
+			// `getScrollableContainer` property is deprecated.
+			// Use `scrollableContainer` instead.
 			getScrollableContainer,
 			bypass,
 			// bypassBatchSize
@@ -106,6 +112,9 @@ export default class ReactVirtualScroller extends React.Component {
 				preserveScrollPositionAtBottomOnMount,
 				shouldUpdateLayoutOnWindowResize: this.shouldUpdateLayoutOnWindowResize,
 				measureItemsBatchSize,
+				scrollableContainer,
+				// `getScrollableContainer` property is deprecated.
+				// Use `scrollableContainer` instead.
 				getScrollableContainer,
 				tbody: AsComponent === 'tbody',
 				state: initialState,
@@ -318,6 +327,9 @@ export default class ReactVirtualScroller extends React.Component {
 			preserveScrollPositionAtBottomOnMount,
 			shouldUpdateLayoutOnWindowResize,
 			measureItemsBatchSize,
+			scrollableContainer,
+			// `getScrollableContainer` property is deprecated.
+			// Use `scrollableContainer` instead.
 			getScrollableContainer,
 			initialState,
 			initialCustomState,
