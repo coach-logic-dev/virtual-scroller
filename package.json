@@ -7,7 +7,9 @@
   "sideEffects": [
     "*.css"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "request-animation-frame-timeout": "^1.0.0"
+  },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.0.0",
