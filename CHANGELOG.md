@@ -1,5 +1,10 @@
 <!-- `virtual-scroller`: in `.updateItems()` handle a case when `items.length` is the same, in which case find different items and if those items are rendered then maybe update them on screen and update their height, if the items are past rendered then maybe just discard all item heights past rendered, if the items are before rendered then maybe ignore and it will jump on scroll up which is kinda acceptable. -->
 
+1.4.1 / 10.09.2020
+==================
+
+* Fixed Chrome's `setTimeout()` delay lag [bug](https://github.com/bvaughn/react-virtualized/issues/722) by using `requestAnimationFrame()`.
+
 1.4.0 / 10.09.2020
 ==================
 
