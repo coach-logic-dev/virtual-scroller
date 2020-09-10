@@ -18,6 +18,7 @@ import shallowEqual from './shallowEqual'
 const WATCH_CONTAINER_ELEMENT_TOP_COORDINATE_INTERVAL = 500
 const WATCH_CONTAINER_ELEMENT_TOP_COORDINATE_MAX_DURATION = 3000
 const SCROLLABLE_CONTAINER_RESIZE_DEBOUNCE_INTERVAL = 250
+const WAIT_FOR_USER_TO_STOP_SCROLLING_TIMEOUT = 100
 
 export default class VirtualScroller {
 	/**
@@ -1136,7 +1137,7 @@ export default class VirtualScroller {
 			// that either the user's no longer scrolling or the browser's
 			// stuttering (skipping frames due to high load) anyway.
 			if (!forceRender) {
-				return this.onUserStopsScrollingTimeout = setTimeout(this.onUserStoppedScrolling, 100)
+				return this.onUserStopsScrollingTimeout = setTimeout(this.onUserStoppedScrolling, WAIT_FOR_USER_TO_STOP_SCROLLING_TIMEOUT)
 			}
 		}
 		// // A minor optimization. Just because I can.
