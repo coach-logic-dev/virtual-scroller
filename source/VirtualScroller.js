@@ -17,7 +17,7 @@ import shallowEqual from './shallowEqual'
 
 const WATCH_CONTAINER_ELEMENT_TOP_COORDINATE_INTERVAL = 500
 const WATCH_CONTAINER_ELEMENT_TOP_COORDINATE_MAX_DURATION = 3000
-const WINDOW_RESIZE_DEBOUNCE_INTERVAL = 250
+const SCROLLABLE_CONTAINER_RESIZE_DEBOUNCE_INTERVAL = 250
 
 export default class VirtualScroller {
 	/**
@@ -326,7 +326,7 @@ export default class VirtualScroller {
 		this.removeScrollPositionListener = this.scrollableContainer.addScrollListener(this.updateScrollPosition)
 		if (!this.bypass) {
 			this.removeScrollListener = this.scrollableContainer.addScrollListener(this.onScroll)
-			window.addEventListener('resize', this.onResize)
+			this.scrollableContainerUnlistenResize = this.scrollableContainer.onResize(this.onResize)
 		}
 		// Work around `<tbody/>` not being able to have `padding`.
 		// https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
@@ -414,24 +414,26 @@ export default class VirtualScroller {
 		return this.scrollableContainer.getTopOffset(this.getContainerNode())
 	}
 
-	shouldUpdateLayoutOnWindowResize(event) {
-		// By default, `VirtualScroller` always performs a re-layout
-		// on window `resize` event. But browsers (Chrome, Firefox)
-		// [trigger](https://developer.mozilla.org/en-US/docs/Web/API/Window/fullScreen#Notes)
-		// window `resize` event also when a user switches into fullscreen mode:
-		// for example, when a user is watching a video and double-clicks on it
-		// to maximize it. And also when the user goes out of the fullscreen mode.
-		// Each such fullscreen mode entering/exiting will trigger window `resize`
-		// event that will it turn trigger a re-layout of `VirtualScroller`,
-		// resulting in bad user experience. To prevent that, such cases are filtered out.
-		// Some other workaround:
-		// https://stackoverflow.com/questions/23770449/embedded-youtube-video-fullscreen-or-causing-resize
-		if (document.fullscreenElement && this.getContainerNode().contains(document.fullscreenElement)) {
-			return false
-		}
-		if (this._shouldUpdateLayoutOnWindowResize) {
-			if (!this._shouldUpdateLayoutOnWindowResize(event)) {
+	shouldUpdateLayoutOnScrollableContainerResize(event) {
+		if (event && event.target === window) {
+			// By default, `VirtualScroller` always performs a re-layout
+			// on window `resize` event. But browsers (Chrome, Firefox)
+			// [trigger](https://developer.mozilla.org/en-US/docs/Web/API/Window/fullScreen#Notes)
+			// window `resize` event also when a user switches into fullscreen mode:
+			// for example, when a user is watching a video and double-clicks on it
+			// to maximize it. And also when the user goes out of the fullscreen mode.
+			// Each such fullscreen mode entering/exiting will trigger window `resize`
+			// event that will it turn trigger a re-layout of `VirtualScroller`,
+			// resulting in bad user experience. To prevent that, such cases are filtered out.
+			// Some other workaround:
+			// https://stackoverflow.com/questions/23770449/embedded-youtube-video-fullscreen-or-causing-resize
+			if (document.fullscreenElement && this.getContainerNode().contains(document.fullscreenElement)) {
 				return false
+			}
+			if (this._shouldUpdateLayoutOnWindowResize) {
+				if (!this._shouldUpdateLayoutOnWindowResize(event)) {
+					return false
+				}
 			}
 		}
 		const prevScrollableContainerWidth = this.scrollableContainerWidth
@@ -450,30 +452,35 @@ export default class VirtualScroller {
 		}
 	}
 
+	/**
+	 * On scrollable container resize.
+	 * @param  {Event} [event] — DOM resize event.
+	 */
 	onResize = debounce((event) => {
 		// If `VirtualScroller` has been unmounted
 		// while `setTimeout()` was waiting, then exit.
 		if (!this.isMounted) {
 			return
 		}
-		if (this.shouldUpdateLayoutOnWindowResize(event)) {
-			// Reset item heights because now that window width changed
-			// the list width most likely also has changed, and also
-			// some CSS `@media()` rules might have been added or removed.
+		if (this.shouldUpdateLayoutOnScrollableContainerResize(event)) {
+			// Reset item heights because if scrollable container's width (or height)
+			// has changed, the list width (or height) most likely also has changed,
+			// and also some CSS `@media()` rules might have been added or removed.
 			// Re-render the list entirely.
-			log('~ Window width changed, re-measure item heights. ~')
+			log('~ Scrollable container size changed, re-measure item heights. ~')
 			this.setState(this.getInitialLayoutState(), () => {
 				this.onInitialRender('resize')
 			})
 		}
-	}, WINDOW_RESIZE_DEBOUNCE_INTERVAL)
+	}, SCROLLABLE_CONTAINER_RESIZE_DEBOUNCE_INTERVAL)
 
 	onUnmount() {
 		this.isMounted = false
 		this.removeScrollPositionListener()
 		if (!this.bypass) {
 			this.removeScrollListener()
-			window.removeEventListener('resize', this.onResize)
+			this.scrollableContainerUnlistenResize()
+			// this.untrackScrollableContainer
 			clearTimeout(this.onUserStopsScrollingTimeout)
 			clearTimeout(this.watchContainerElementCoordinatesTimer)
 		}
