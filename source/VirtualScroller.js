@@ -78,7 +78,7 @@ export default class VirtualScroller {
 		}
 		if (scrollableContainer) {
 			this.scrollableContainer = new ScrollableContainer(scrollableContainer)
-		} else {
+		} else if (typeof window !== 'undefined') {
 			this.scrollableContainer = new ScrollableWindowContainer()
 		}
 
@@ -170,9 +170,11 @@ export default class VirtualScroller {
 		this.getContainerNode = getContainerNode
 		this.itemHeights = new ItemHeights(getContainerNode, this.getState)
 
-		if (preserveScrollPositionAtBottomOnMount) {
-			this.preserveScrollPositionAtBottomOnMount = {
-				scrollableContainerContentHeight: this.scrollableContainer.getContentHeight()
+		if (this.scrollableContainer) {
+			if (preserveScrollPositionAtBottomOnMount) {
+				this.preserveScrollPositionAtBottomOnMount = {
+					scrollableContainerContentHeight: this.scrollableContainer.getContentHeight()
+				}
 			}
 		}
 
@@ -253,7 +255,7 @@ export default class VirtualScroller {
 	}
 
 	getEstimatedItemsCountOnScreen() {
-		if (typeof window !== 'undefined') {
+		if (this.scrollableContainer) {
 			return this.getEstimatedItemsCount(this.getMargin() * 2 + this.scrollableContainer.getHeight())
 		} else {
 			return 1
