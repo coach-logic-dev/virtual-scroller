@@ -1,5 +1,12 @@
 <!-- `virtual-scroller`: in `.updateItems()` handle a case when `items.length` is the same, in which case find different items and if those items are rendered then maybe update them on screen and update their height, if the items are past rendered then maybe just discard all item heights past rendered, if the items are before rendered then maybe ignore and it will jump on scroll up which is kinda acceptable. -->
 
+1.5.1 / 13.09.2020
+==================
+
+* Renamed `.onMount()`/`.render()` instance method to `.listen()`. The older method name still works.
+
+* Renamed `.onUnmount()`/`.destroy()` instance method to `.stop()`. The older method name still works.
+
 1.5.0 / 12.09.2020
 ==================
 

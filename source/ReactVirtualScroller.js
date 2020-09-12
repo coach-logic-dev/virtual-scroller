@@ -86,6 +86,16 @@ export default class ReactVirtualScroller extends React.Component {
 
 	constructor(props) {
 		super(props)
+		// `this.previousItemsProperty` is only used for comparing
+		// `previousItems` with `newItems` inside `render()`.
+		this.previousItemsProperty = props.items
+		// Generate unique `key` prefix for list item components.
+		this.generateUniquePrefix()
+		// Create `VirtualScroller` instance.
+		this.createVirtualScroller()
+	}
+
+	createVirtualScroller() {
 		const {
 			as: AsComponent,
 			items,
@@ -105,9 +115,6 @@ export default class ReactVirtualScroller extends React.Component {
 			bypass,
 			// bypassBatchSize
 		} = this.props
-		// `this.previousItemsProperty` is only used for comparing
-		// `previousItems` with `newItems` in `render()`.
-		this.previousItemsProperty = items
 		// Create `virtual-scroller` instance.
 		this.virtualScroller = new VirtualScroller(
 			() => this.container.current,
@@ -149,8 +156,6 @@ export default class ReactVirtualScroller extends React.Component {
 				}
 			}
 		)
-		// Generate unique `key` prefix for list item components.
-		this.generateUniquePrefix()
 	}
 
 	// This is a proxy for `VirtualScroller`'s `.updateLayout` instance method.
@@ -295,8 +300,9 @@ export default class ReactVirtualScroller extends React.Component {
 		if (onMount) {
 			onMount()
 		}
-		this.virtualScroller.render()
 		this._isMounted = true
+		// Start listening to scroll events.
+		this.virtualScroller.listen()
 	}
 
 	// `getSnapshotBeforeUpdate()` is called right before `componentDidUpdate()`.
@@ -334,8 +340,9 @@ export default class ReactVirtualScroller extends React.Component {
 	}
 
 	componentWillUnmount() {
-		this.virtualScroller.destroy()
 		this._isMounted = false
+		// Stop listening to scroll events.
+		this.virtualScroller.stop()
 	}
 
 	render() {

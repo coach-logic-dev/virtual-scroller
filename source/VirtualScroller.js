@@ -28,13 +28,13 @@ const WAIT_FOR_USER_TO_STOP_SCROLLING_TIMEOUT = 100
 
 export default class VirtualScroller {
 	/**
-	 * @param  {function} getContainerNode — Returns container DOM `Element`.
-	 * @param  {any[]} items — Are only used for getting items count and for comparing "previous" items to "next" items if `.setItems(newItems)` is called.
+	 * @param  {function} getContainerElement — Returns the container DOM `Element`.
+	 * @param  {any[]} items — The list of items.
 	 * @param  {Object} [options] — See README.md.
 	 * @return {VirtualScroller}
 	 */
 	constructor(
-		getContainerNode,
+		getContainerElement,
 		items,
 		options = {}
 	) {
@@ -68,8 +68,6 @@ export default class VirtualScroller {
 			state
 		} = options
 
-		preserveScrollPositionOfTheBottomOfTheListOnMount = preserveScrollPositionOfTheBottomOfTheListOnMount || preserveScrollPositionAtBottomOnMount
-
 		log('~ Initialize ~')
 
 		// If `state` is passed then use `items` from `state`
@@ -93,7 +91,7 @@ export default class VirtualScroller {
 		// 	// Renders items which are outside of the screen by this "margin".
 		// 	// Is the screen height by default: seems to be the optimal value
 		// 	// for "Page Up" / "Page Down" navigation and optimized mouse wheel scrolling.
-		// 	margin = typeof window === 'undefined' ? 0 : this.scrollableContainer.getHeight()
+		// 	margin = this.scrollableContainer ? this.scrollableContainer.getHeight() : 0
 		// }
 
 		// Work around `<tbody/>` not being able to have `padding`.
@@ -161,13 +159,6 @@ export default class VirtualScroller {
 			}
 		}
 
-		// Remove any accidental text nodes from container (like whitespace).
-    // Also guards against cases when someone accidentally tries
-    // using `VirtualScroller` on a non-empty element.
-		if (getContainerNode()) {
-			clearElement(getContainerNode())
-		}
-
 		if (setState) {
 			this.getState = getState
 			this.setState = (state) => setState(state, {
@@ -192,10 +183,27 @@ export default class VirtualScroller {
 			log('Initial state (passed)', state)
 		}
 
-		this.getContainerNode = getContainerNode
-		this.itemHeights = new ItemHeights(getContainerNode, this.getState)
+		// Sometimes, when `new VirtualScroller()` instance is created,
+		// `getContainerElement()` might not be ready to return the "container" DOM Element yet
+		// (for example, because it's not rendered yet). That's the reason why it's a getter function.
+		// For example, in React, on server side, where there's no "container" DOM Element,
+		// it still "renders" a list with a predefined amount of items in it by default.
+		// (`initiallyRenderedItemsCount`, or `1`).
+		this.getContainerElement = getContainerElement
+		// Remove any accidental text nodes from container (like whitespace).
+		// Also guards against cases when someone accidentally tries
+		// using `VirtualScroller` on a non-empty element.
+		if (getContainerElement()) {
+			clearElement(getContainerElement())
+		}
+
+		this.itemHeights = new ItemHeights(this.getContainerElement, this.getState)
 
 		if (this.scrollableContainer) {
+			if (preserveScrollPositionAtBottomOnMount) {
+				console.warn('[virtual-scroller] `preserveScrollPositionAtBottomOnMount` option/property has been renamed to `preserveScrollPositionOfTheBottomOfTheListOnMount`')
+				preserveScrollPositionOfTheBottomOfTheListOnMount = preserveScrollPositionAtBottomOnMount
+			}
 			if (preserveScrollPositionOfTheBottomOfTheListOnMount) {
 				this.preserveScrollPositionOfTheBottomOfTheListOnMount = {
 					scrollableContainerContentHeight: this.scrollableContainer.getContentHeight()
@@ -351,14 +359,22 @@ export default class VirtualScroller {
 	}
 
 	onMount() {
-		console.warn('[virtual-scroller] `.onMount()` instance method name is deprecated, use `.render()` instance method name instead.')
-		this.render()
+		console.warn('[virtual-scroller] `.onMount()` instance method name is deprecated, use `.listen()` instance method name instead.')
+		this.listen()
+	}
+
+	render() {
+		console.warn('[virtual-scroller] `.render()` instance method name is deprecated, use `.listen()` instance method name instead.')
+		this.listen()
 	}
 
 	/**
 	 * Should be invoked after a "container" DOM Element is mounted (inserted into the DOM tree).
 	 */
-	render() {
+	listen() {
+		if (this.isRendered === false) {
+			throw new Error('[virtual-scroller] Can\'t restart a `VirtualScroller` after it has been stopped')
+		}
 		log('~ Rendered (initial) ~')
 		// `this.isRendered = true` should be the first statement in this function,
 		// otherwise `DOMVirtualScroller` would enter an infinite re-render loop.
@@ -376,7 +392,7 @@ export default class VirtualScroller {
 		// Work around `<tbody/>` not being able to have `padding`.
 		// https://gitlab.com/catamphetamine/virtual-scroller/-/issues/1
 		if (this.tbody) {
-			addTbodyStyles(this.getContainerNode())
+			addTbodyStyles(this.getContainerElement())
 		}
 		if (this.preserveScrollPositionOfTheBottomOfTheListOnMount) {
 			// In this case, all items are shown, so there's no need to call
@@ -441,7 +457,7 @@ export default class VirtualScroller {
 	 * @return {number}
 	 */
 	getHeight() {
-		return this.getContainerNode().getBoundingClientRect().height
+		return this.getContainerElement().getBoundingClientRect().height
 	}
 
 	/**
@@ -449,7 +465,7 @@ export default class VirtualScroller {
 	 * @return {number}
 	 */
 	getTopOffset() {
-		return this.scrollableContainer.getTopOffset(this.getContainerNode())
+		return this.scrollableContainer.getTopOffset(this.getContainerElement())
 	}
 
 	shouldUpdateLayoutOnScrollableContainerResize(event) {
@@ -465,7 +481,7 @@ export default class VirtualScroller {
 			// resulting in bad user experience. To prevent that, such cases are filtered out.
 			// Some other workaround:
 			// https://stackoverflow.com/questions/23770449/embedded-youtube-video-fullscreen-or-causing-resize
-			if (document.fullscreenElement && this.getContainerNode().contains(document.fullscreenElement)) {
+			if (document.fullscreenElement && this.getContainerElement().contains(document.fullscreenElement)) {
 				return false
 			}
 			if (this._shouldUpdateLayoutOnWindowResize) {
@@ -518,11 +534,16 @@ export default class VirtualScroller {
 	}, SCROLLABLE_CONTAINER_RESIZE_DEBOUNCE_INTERVAL)
 
 	onUnmount() {
-		console.warn('[virtual-scroller] `.onUnmount()` instance method name is deprecated, use `.destroy()` instance method name instead.')
-		this.destroy()
+		console.warn('[virtual-scroller] `.onUnmount()` instance method name is deprecated, use `.stop()` instance method name instead.')
+		this.stop()
 	}
 
 	destroy() {
+		console.warn('[virtual-scroller] `.destroy()` instance method name is deprecated, use `.stop()` instance method name instead.')
+		this.stop()
+	}
+
+	stop() {
 		this.isRendered = false
 		this.removeScrollPositionListener()
 		if (!this.bypass) {
@@ -647,7 +668,7 @@ export default class VirtualScroller {
    */
 	updateTbodyPadding() {
 		const { beforeItemsHeight, afterItemsHeight } = this.getState()
-		setTbodyPadding(this.getContainerNode(), beforeItemsHeight, afterItemsHeight)
+		setTbodyPadding(this.getContainerElement(), beforeItemsHeight, afterItemsHeight)
 	}
 
 	updateItemHeights() {
@@ -1397,7 +1418,7 @@ export default class VirtualScroller {
 	}
 
 	getItemElement(i) {
-		return this.getContainerNode().childNodes[i]
+		return this.getContainerElement().childNodes[i]
 	}
 
 	// Turns out this optimization won't work

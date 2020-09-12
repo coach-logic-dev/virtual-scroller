@@ -1,8 +1,8 @@
 import log from './log'
 
 export default class ItemHeights {
-	constructor(getContainerNode, getState) {
-		this.getContainerNode = getContainerNode
+	constructor(getContainerElement, getState) {
+		this.getContainerElement = getContainerElement
 		this.getState = getState
 		this.initialize()
 	}
@@ -63,7 +63,7 @@ export default class ItemHeights {
 	// }
 
 	_getItemHeight(i, firstShownItemIndex) {
-		const container = this.getContainerNode()
+		const container = this.getContainerElement()
 		if (container) {
 			const nodeIndex = i - firstShownItemIndex
 			if (nodeIndex >= 0 && nodeIndex < container.childNodes.length) {
@@ -75,7 +75,7 @@ export default class ItemHeights {
 	}
 
 	getItemSpacing() {
-		const container = this.getContainerNode()
+		const container = this.getContainerElement()
 		if (container) {
 			if (container.childNodes.length > 1) {
 				const firstItem = container.childNodes[0]
