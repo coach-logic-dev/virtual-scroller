@@ -2,7 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import VirtualScroller, { getItemsDiff } from './VirtualScroller'
-import shallowEqual from './shallowEqual'
 import { px } from './utility'
 
 // `PropTypes.elementType` is available in some version of `prop-types`.
@@ -26,6 +25,9 @@ export default class ReactVirtualScroller extends React.Component {
 		// `preserveScrollPosition` property name is deprecated,
 		// use `preserveScrollPositionOnPrependItems` instead.
 		preserveScrollPosition: PropTypes.bool,
+		preserveScrollPositionOfTheBottomOfTheListOnMount: PropTypes.bool,
+		// `preserveScrollPositionAtBottomOnMount` property name is deprecated,
+		// use `preserveScrollPositionOfTheBottomOfTheListOnMount` property instead.
 		preserveScrollPositionAtBottomOnMount: PropTypes.bool,
 		shouldUpdateLayoutOnWindowResize: PropTypes.func,
 		measureItemsBatchSize: PropTypes.number,
@@ -35,6 +37,8 @@ export default class ReactVirtualScroller extends React.Component {
 		getScrollableContainer: PropTypes.func,
 		className: PropTypes.string,
 		onMount: PropTypes.func,
+		onItemInitialRender: PropTypes.func,
+		// `onItemFirstRender(i)` is deprecated, use `onItemInitialRender(item)` instead.
 		onItemFirstRender: PropTypes.func,
 		onStateChange: PropTypes.func,
 		initialCustomState: PropTypes.object,
@@ -87,7 +91,11 @@ export default class ReactVirtualScroller extends React.Component {
 			items,
 			initialState,
 			initialCustomState,
+			onStateChange,
 			estimatedItemHeight,
+			preserveScrollPositionOfTheBottomOfTheListOnMount,
+			// `preserveScrollPositionAtBottomOnMount` property name is deprecated,
+			// use `preserveScrollPositionOfTheBottomOfTheListOnMount` property instead.
 			preserveScrollPositionAtBottomOnMount,
 			measureItemsBatchSize,
 			scrollableContainer,
@@ -108,7 +116,12 @@ export default class ReactVirtualScroller extends React.Component {
 				estimatedItemHeight,
 				bypass,
 				// bypassBatchSize,
+				onItemInitialRender: this.onItemInitialRender,
+				// `onItemFirstRender(i)` is deprecated, use `onItemInitialRender(item)` instead.
 				onItemFirstRender: this.onItemFirstRender,
+				preserveScrollPositionOfTheBottomOfTheListOnMount,
+				// `preserveScrollPositionAtBottomOnMount` property name is deprecated,
+				// use `preserveScrollPositionOfTheBottomOfTheListOnMount` property instead.
 				preserveScrollPositionAtBottomOnMount,
 				shouldUpdateLayoutOnWindowResize: this.shouldUpdateLayoutOnWindowResize,
 				measureItemsBatchSize,
@@ -119,15 +132,19 @@ export default class ReactVirtualScroller extends React.Component {
 				tbody: AsComponent === 'tbody',
 				state: initialState,
 				customState: initialCustomState,
+				onStateChange,
 				getState: () => this.state,
-				setState: (newState, callback) => {
+				setState: (newState, { willUpdateState, didUpdateState }) => {
+					this.willUpdateState = willUpdateState
+					this.didUpdateState = didUpdateState
 					if (this.state) {
 						// Update existing state.
-						this.setState(newState, callback)
+						this.setState(newState)
 					} else {
 						// Set initial state.
+						willUpdateState(newState)
 						this.state = newState
-						this.onStateChange(newState)
+						didUpdateState()
 					}
 				}
 			}
@@ -143,9 +160,21 @@ export default class ReactVirtualScroller extends React.Component {
 	layout = () => this.updateLayout()
 
 	// This proxy is required for cases when
+	// `onItemInitialRender` property changes at subsequent renders.
+	// For example, if it's passed as an "anonymous" function:
+	// `<VirtualScroller onItemInitialRender={() => ...}/>`.
+	onItemInitialRender = (...args) => {
+		const { onItemInitialRender } = this.props
+		if (onItemInitialRender) {
+			onItemInitialRender(...args)
+		}
+	}
+
+	// This proxy is required for cases when
 	// `onItemFirstRender` property changes at subsequent renders.
 	// For example, if it's passed as an "anonymous" function:
 	// `<VirtualScroller onItemFirstRender={() => ...}/>`.
+	// `onItemFirstRender(i)` is deprecated, use `onItemInitialRender(item)` instead.
 	onItemFirstRender = (...args) => {
 		const { onItemFirstRender } = this.props
 		if (onItemFirstRender) {
@@ -161,17 +190,6 @@ export default class ReactVirtualScroller extends React.Component {
 		const { shouldUpdateLayoutOnWindowResize } = this.props
 		if (shouldUpdateLayoutOnWindowResize) {
 			return shouldUpdateLayoutOnWindowResize(...args)
-		}
-	}
-
-	// This proxy is required for cases when
-	// `onStateChange` property changes.
-	// For example, if it's passed as:
-	// `<VirtualScroller onStateChange={() => ...}/>`.
-	onStateChange = (...args) => {
-		const { onStateChange } = this.props
-		if (onStateChange) {
-			onStateChange(...args)
 		}
 	}
 
@@ -277,25 +295,35 @@ export default class ReactVirtualScroller extends React.Component {
 		if (onMount) {
 			onMount()
 		}
-		this.virtualScroller.onMount()
+		this.virtualScroller.render()
 		this._isMounted = true
 	}
 
-	componentDidUpdate(prevProps, prevState) {
-		const { onStateChange } = this.props
-		// An application may choose to track `virtual-scroller` state
-		// for restoring it later on "Back" navigation.
-		if (onStateChange) {
-			if (!shallowEqual(this.state, prevState)) {
-				onStateChange(this.state, prevState)
-			}
+	// `getSnapshotBeforeUpdate()` is called right before `componentDidUpdate()`.
+	getSnapshotBeforeUpdate(prevProps, prevState) {
+		if (this.state !== prevState) {
+			this.willUpdateState(this.state, prevState)
 		}
-		// Re-measure rendered items' heights.
-		this.virtualScroller.onUpdate(prevState)
+		// Returns `null` to avoid React warning:
+		// "A snapshot value (or null) must be returned. You have returned undefined".
+		return null
+	}
+
+	// `componentDidUpdate()` is called immediately after React component has re-rendered.
+	// That would correspond to `useLayoutEffect()` in React Hooks.
+	componentDidUpdate(prevProps, prevState) {
+		// If `state` did change.
+		if (this.state !== prevState) {
+			this.didUpdateState(prevState)
+		}
 		// If `items` property did change then update `virtual-scroller` items.
 		// This could have been done in `.render()` but `.setItems()` calls
 		// `.setState()` internally which would result in React throwing an error.
-		const { items, preserveScrollPosition, preserveScrollPositionOnPrependItems } = this.props
+		const {
+			items,
+			preserveScrollPosition,
+			preserveScrollPositionOnPrependItems
+		} = this.props
 		if (items !== prevProps.items) {
 			this.virtualScroller.setItems(items, {
 				// `preserveScrollPosition` property name is deprecated,
@@ -306,7 +334,7 @@ export default class ReactVirtualScroller extends React.Component {
 	}
 
 	componentWillUnmount() {
-		this.virtualScroller.onUnmount()
+		this.virtualScroller.destroy()
 		this._isMounted = false
 	}
 
@@ -324,6 +352,9 @@ export default class ReactVirtualScroller extends React.Component {
 			// `preserveScrollPosition` property name is deprecated,
 			// use `preserveScrollPositionOnPrependItems` instead.
 			preserveScrollPosition,
+			preserveScrollPositionOfTheBottomOfTheListOnMount,
+			// `preserveScrollPositionAtBottomOnMount` property name is deprecated,
+			// use `preserveScrollPositionOfTheBottomOfTheListOnMount` property instead.
 			preserveScrollPositionAtBottomOnMount,
 			shouldUpdateLayoutOnWindowResize,
 			measureItemsBatchSize,
@@ -334,6 +365,8 @@ export default class ReactVirtualScroller extends React.Component {
 			initialState,
 			initialCustomState,
 			onStateChange,
+			onItemInitialRender,
+			// `onItemFirstRender(i)` is deprecated, use `onItemInitialRender(item)` instead.
 			onItemFirstRender,
 			onMount,
 			className,

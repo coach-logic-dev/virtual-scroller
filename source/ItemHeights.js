@@ -4,22 +4,25 @@ export default class ItemHeights {
 	constructor(getContainerNode, getState) {
 		this.getContainerNode = getContainerNode
 		this.getState = getState
+		this.initialize()
+	}
+
+	initialize() {
 		this.reset()
+		if (this.getState()) {
+			this.onStateUpdate()
+		}
 	}
 
 	reset() {
 		this.measuredItemsHeight = 0
 		this.firstMeasuredItemIndex = undefined
 		this.lastMeasuredItemIndex = undefined
-		// this.averageItemHeight = undefined
-		// this.averageItemHeightSamplesCount = undefined
-		// this.previousAverageItemHeight = undefined
-		// this.previousAverageItemHeightSamplesCount = undefined
 	}
 
 	/**
 	 * Initializes `this.measuredItemsHeight`, `this.firstMeasuredItemIndex` and
-	 * `this.lastMeasuredItemIndex` instance variables.
+	 * `this.lastMeasuredItemIndex` instance variables from the `state`.
 	 * These instance variables are used when calculating "average" item height:
 	 * the "average" item height is simply `this.measuredItemsHeight` divided by
 	 * `this.lastMeasuredItemIndex` minus `this.firstMeasuredItemIndex` plus 1.
@@ -28,11 +31,10 @@ export default class ItemHeights {
 	 * jumps from one position to a distant another position. How could that happen?
 	 * Maybe it can't, but just in case.
 	 */
-	onInitItemHeights() {
-		this.reset()
+	onStateUpdate() {
 		let i = 0
 		while (i < this.getState().itemHeights.length) {
-			if (this.getState().itemHeights[i] == undefined) {
+			if (this.getState().itemHeights[i] === undefined) {
 				if (this.firstMeasuredItemIndex !== undefined) {
 					this.lastMeasuredItemIndex = i - 1
 					break

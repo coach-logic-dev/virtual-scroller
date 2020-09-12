@@ -27,7 +27,7 @@ export default class DOMVirtualScroller {
     if (onMount) {
       onMount()
     }
-    this.virtualScroller.onMount()
+    this.virtualScroller.render()
   }
 
   onStateChange = (state, prevState) => {
@@ -101,8 +101,15 @@ export default class DOMVirtualScroller {
     }
   }
 
+  // Public API. Should be "bound" to `this`.
   onUnmount = () => {
-    this.virtualScroller.onUnmount()
+    console.warn('[virtual-scroller] `.onUnmount()` instance method name is deprecated, use `.destroy()` instance method name instead.')
+    this.destroy()
+  }
+
+  // Public API. Should be "bound" to `this`.
+  destroy = () => {
+    this.virtualScroller.destroy()
   }
 
   unmountItem(itemElement) {
