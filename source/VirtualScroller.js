@@ -313,10 +313,15 @@ export default class VirtualScroller {
 	}
 
 	getMargin() {
-		// Renders items that are outside of the screen by this "margin".
-		// Is the screen height by default: seems to be the optimal value
-		// for "Page Up" / "Page Down" navigation and optimized mouse wheel scrolling.
-		return this.scrollableContainer.getHeight()
+		// `VirtualScroller` also items that are outside of the screen
+		// by the amount of this "render ahead margin" (both on top and bottom).
+		// The default "render ahead margin" is equal to the screen height:
+		// this seems to be the optimal value for "Page Up" / "Page Down" navigation
+		// and optimized mouse wheel scrolling (a user is unlikely to continuously
+		// scroll past the height of a screen, and when they stop scrolling,
+		// the list is re-rendered).
+		const renderAheadMarginRatio = 1 // in scrollable container heights.
+		return this.scrollableContainer.getHeight() * renderAheadMarginRatio
 	}
 
 	onBeforeShowItems(items, firstShownItemIndex, lastShownItemIndex) {
