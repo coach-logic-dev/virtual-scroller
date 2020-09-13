@@ -46,7 +46,7 @@ npm install virtual-scroller --save
 
 If you're not using a bundler then use a [standalone version from a CDN](#cdn).
 
-## Use
+## Core
 
 The default export is the low-level `VirtualScroller` class: it implements the core logic of a `VirtualScroller` component and can be used for building a `VirtualScroller` component for any UI framework. Hence, it's not meant to be used in applications directly: instead, see the high-level components exported from [`virtual-scroller/dom`](#dom) and [`virtual-scroller/react`](#react) packages.
 
