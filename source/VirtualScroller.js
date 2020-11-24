@@ -1725,7 +1725,10 @@ function arePreviousItemsPreserved(previousItems, newItems, offset) {
   // (an update when items are prepended or appended)
   let i = 0;
   while (i < previousItems.length) {
-    if (newItems[offset + i].id !== previousItems[i].id) {
+    if (
+      newItems[offset + i] &&
+      newItems[offset + i].id !== previousItems[i].id
+    ) {
       return false;
     }
     i++;
