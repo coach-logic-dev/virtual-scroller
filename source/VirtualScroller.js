@@ -1472,7 +1472,6 @@ export default class VirtualScroller {
     const isIncrementalUpdate =
       prependedItemsCount >= 0 || appendedItemsCount >= 0;
 
-    console.log("update:", appendedItemsCount);
     if (isIncrementalUpdate) {
       if (prependedItemsCount >= 0) {
         log("Prepend", prependedItemsCount, "items");
@@ -1711,7 +1710,6 @@ export function getItemsDiff(previousItems, newItems) {
   if (!isIncrementalUpdate) {
     debugger;
   }
-  console.log(isIncrementalUpdate);
   if (isIncrementalUpdate) {
     return {
       prependedItemsCount: firstPreviousItemIndex,
