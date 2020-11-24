@@ -1690,7 +1690,7 @@ export function getItemsDiff(previousItems, newItems) {
   let lastPreviousItemIndex = -1;
   if (previousItems.length > 0) {
     firstPreviousItemIndex = newItems.findIndex(
-      ({ id = null }) => id && id === previousItems[0]?.id
+      ({ id = null }) => id && id === previousItems[0].id
     );
     if (firstPreviousItemIndex >= 0) {
       if (
@@ -1725,7 +1725,7 @@ function arePreviousItemsPreserved(previousItems, newItems, offset) {
   // (an update when items are prepended or appended)
   let i = 0;
   while (i < previousItems.length) {
-    if (newItems[offset + i]?.id !== previousItems[i]?.id) {
+    if (newItems[offset + i].id !== previousItems[i].id) {
       return false;
     }
     i++;

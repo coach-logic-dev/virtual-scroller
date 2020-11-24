@@ -1737,8 +1737,9 @@ export function getItemsDiff(previousItems, newItems) {
 
   if (previousItems.length > 0) {
     firstPreviousItemIndex = newItems.findIndex(function (_ref2) {
-      var id = _ref2.id;
-      return id === previousItems[0].id;
+      var _ref2$id = _ref2.id,
+          id = _ref2$id === void 0 ? null : _ref2$id;
+      return id && id === previousItems[0].id;
     });
 
     if (firstPreviousItemIndex >= 0) {
@@ -1749,10 +1750,6 @@ export function getItemsDiff(previousItems, newItems) {
   }
 
   var isIncrementalUpdate = firstPreviousItemIndex >= 0 || lastPreviousItemIndex >= 0;
-
-  if (!isIncrementalUpdate) {
-    debugger;
-  }
 
   if (isIncrementalUpdate) {
     return {
