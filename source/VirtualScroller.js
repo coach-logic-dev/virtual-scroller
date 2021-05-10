@@ -1685,12 +1685,25 @@ function getRemainderRest(n, divider) {
   return 0;
 }
 
+const isArrayEqual = (arr1, arr2) => {
+  if (Array.isArray(arr1) && Array.isArray(arr2)) {
+    return (
+      arr1
+        .filter((x) => !arr2.includes(x))
+        .concat(arr2.filter((x) => !arr1.includes(x))).length === 0
+    );
+  }
+  return false;
+};
+
 export function getItemsDiff(previousItems, newItems) {
   let firstPreviousItemIndex = -1;
   let lastPreviousItemIndex = -1;
   if (previousItems.length > 0) {
     firstPreviousItemIndex = newItems.findIndex(
-      ({ id = null }) => id && id === previousItems[0].id
+      (item) =>
+        (item.id && item.id === previousItems[0].id) ||
+        isArrayEqual(item, previousItems[0])
     );
     if (firstPreviousItemIndex >= 0) {
       if (
@@ -1726,8 +1739,10 @@ function arePreviousItemsPreserved(previousItems, newItems, offset) {
   let i = 0;
   while (i < previousItems.length) {
     if (
-      newItems[offset + i] &&
-      newItems[offset + i].id !== previousItems[i].id
+      (newItems[offset + i] &&
+        newItems[offset + i].id !== previousItems[i].id) ||
+      (newItems[offset + i] &&
+        newItems[offset + i][0].id !== previousItems[i][0].id)
     ) {
       return false;
     }

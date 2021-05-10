@@ -1731,15 +1731,25 @@ function getRemainderRest(n, divider) {
   return 0;
 }
 
+var isArrayEqual = function isArrayEqual(arr1, arr2) {
+  if (Array.isArray(arr1) && Array.isArray(arr2)) {
+    return arr1.filter(function (x) {
+      return !arr2.includes(x);
+    }).concat(arr2.filter(function (x) {
+      return !arr1.includes(x);
+    })).length === 0;
+  }
+
+  return false;
+};
+
 export function getItemsDiff(previousItems, newItems) {
   var firstPreviousItemIndex = -1;
   var lastPreviousItemIndex = -1;
 
   if (previousItems.length > 0) {
-    firstPreviousItemIndex = newItems.findIndex(function (_ref2) {
-      var _ref2$id = _ref2.id,
-          id = _ref2$id === void 0 ? null : _ref2$id;
-      return id && id === previousItems[0].id;
+    firstPreviousItemIndex = newItems.findIndex(function (item) {
+      return item.id && item.id === previousItems[0].id || isArrayEqual(item, previousItems[0]);
     });
 
     if (firstPreviousItemIndex >= 0) {
@@ -1771,7 +1781,7 @@ function arePreviousItemsPreserved(previousItems, newItems, offset) {
   var i = 0;
 
   while (i < previousItems.length) {
-    if (newItems[offset + i].id !== previousItems[i].id) {
+    if (newItems[offset + i] && newItems[offset + i].id !== previousItems[i].id || newItems[offset + i] && newItems[offset + i][0].id !== previousItems[i][0].id) {
       return false;
     }
 
