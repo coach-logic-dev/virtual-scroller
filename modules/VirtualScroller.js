@@ -1781,7 +1781,7 @@ function arePreviousItemsPreserved(previousItems, newItems, offset) {
   var i = 0;
 
   while (i < previousItems.length) {
-    if (newItems[offset + i] && newItems[offset + i].id !== previousItems[i].id || newItems[offset + i] && newItems[offset + i][0].id !== previousItems[i][0].id) {
+    if (newItems[offset + i] && newItems[offset + i].id !== previousItems[i].id || newItems[offset + i] &&  Array.isArray(newItems[offset + i]) && newItems[offset + i][0].id !== previousItems[i][0].id) {
       return false;
     }
 
