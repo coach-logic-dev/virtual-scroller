@@ -27,7 +27,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 import React from "react";
 import PropTypes from "prop-types";
 import VirtualScroller, { getItemsDiff } from "./VirtualScroller";
-import { px } from "./utility"; // `PropTypes.elementType` is available in some version of `prop-types`.
+import { px } from "./utility";
+import shallowEqual from "./shallowEqual"; // `PropTypes.elementType` is available in some version of `prop-types`.
 // https://github.com/facebook/prop-types/issues/200
 
 var elementType = PropTypes.elementType || PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]);
@@ -344,7 +345,7 @@ function (_React$Component) {
           preserveScrollPosition = _this$props2.preserveScrollPosition,
           preserveScrollPositionOnPrependItems = _this$props2.preserveScrollPositionOnPrependItems; // || JSON.stringify(items.length) === JSON.stringify(prevProps.items.length)
 
-      if (items.length !== prevProps.items.length) {
+      if (items.length !== prevProps.items.length || !shallowEqual(prevProps.items, items) || Array.isArray(items[items.length - 1]) && (items[items.length - 1].length !== prevProps.items[prevProps.items.length - 1].length || !shallowEqual(prevProps.items, items))) {
         this.virtualScroller.setItems(items, {
           // `preserveScrollPosition` property name is deprecated,
           // use `preserveScrollPositionOnPrependItems` instead.

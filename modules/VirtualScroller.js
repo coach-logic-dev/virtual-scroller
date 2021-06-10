@@ -1732,7 +1732,7 @@ function getRemainderRest(n, divider) {
 }
 
 var isArrayEqual = function isArrayEqual(arr1, arr2) {
-  if (Array.isArray(arr1) && Array.isArray(arr2)) {
+  if (Array.isArray(arr1) && Array.isArray(arr2) && arr1.length === arr2.length) {
     return arr1.filter(function (x) {
       return !arr2.includes(x);
     }).concat(arr2.filter(function (x) {
@@ -1781,7 +1781,7 @@ function arePreviousItemsPreserved(previousItems, newItems, offset) {
   var i = 0;
 
   while (i < previousItems.length) {
-    if (newItems[offset + i] && newItems[offset + i].id !== previousItems[i].id || newItems[offset + i] && newItems[offset + i][0].id !== previousItems[i][0].id) {
+    if (newItems[offset + i] && newItems[offset + i].id !== previousItems[i].id || newItems[offset + i][0] && newItems[offset + i][0].id !== previousItems[i][0].id) {
       return false;
     }
 
