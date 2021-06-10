@@ -112,7 +112,6 @@ function () {
             prependedItemsCount = _getItemsDiff.prependedItemsCount; // Since some items were prepended, scroll Y position
         // should be restored after rendering those new items.
 
-
         _this.captureScroll(previousItems, newItems, prependedItemsCount);
       }
     });
@@ -150,7 +149,6 @@ function () {
 
       var previousItems = prevState.items;
       var newItems = newState.items;
-
       if (newItems !== previousItems) {
         var _getItemsDiff2 = getItemsDiff(previousItems, newItems),
             prependedItemsCount = _getItemsDiff2.prependedItemsCount,
@@ -1511,7 +1509,6 @@ function () {
       var firstSeenItemIndex = this.firstSeenItemIndex,
           lastSeenItemIndex = this.lastSeenItemIndex;
       log("~ Update items ~");
-
       var _getItemsDiff3 = getItemsDiff(previousItems, newItems),
           prependedItemsCount = _getItemsDiff3.prependedItemsCount,
           appendedItemsCount = _getItemsDiff3.appendedItemsCount;
@@ -1589,7 +1586,6 @@ function () {
       // use `preserveScrollPositionOnPrependItems` instead.
 
       this.preserveScrollPositionOnPrependItems = options.preserveScrollPositionOnPrependItems || options.preserveScrollPosition; // Render.
-
       this.setState({
         // ...customState,
         items: newItems,
@@ -1732,7 +1728,7 @@ function getRemainderRest(n, divider) {
 }
 
 var isArrayEqual = function isArrayEqual(arr1, arr2) {
-  if (Array.isArray(arr1) && Array.isArray(arr2)) {
+  if (Array.isArray(arr1) && Array.isArray(arr2) && arr1.length === arr2.length) {
     return arr1.filter(function (x) {
       return !arr2.includes(x);
     }).concat(arr2.filter(function (x) {
@@ -1768,6 +1764,7 @@ export function getItemsDiff(previousItems, newItems) {
     };
   }
 
+
   return {
     prependedItemsCount: -1,
     appendedItemsCount: -1
@@ -1781,7 +1778,7 @@ function arePreviousItemsPreserved(previousItems, newItems, offset) {
   var i = 0;
 
   while (i < previousItems.length) {
-    if (newItems[offset + i] && newItems[offset + i].id !== previousItems[i].id || newItems[offset + i] && newItems[offset + i][0].id !== previousItems[i][0].id) {
+    if (newItems[offset + i] && newItems[offset + i].id !== previousItems[i].id || newItems[offset + i][0] && newItems[offset + i][0].id !== previousItems[i][0].id) {
       return false;
     }
 
