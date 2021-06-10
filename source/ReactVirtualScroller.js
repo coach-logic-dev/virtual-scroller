@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 import VirtualScroller, { getItemsDiff } from "./VirtualScroller";
 import { px } from "./utility";
+import shallowEqual from "./shallowEqual";
 
 // `PropTypes.elementType` is available in some version of `prop-types`.
 // https://github.com/facebook/prop-types/issues/200
@@ -339,7 +340,13 @@ export default class ReactVirtualScroller extends React.Component {
       preserveScrollPositionOnPrependItems,
     } = this.props;
     // || JSON.stringify(items.length) === JSON.stringify(prevProps.items.length)
-    if (items.length !== prevProps.items.length) {
+    if (
+      items.length !== prevProps.items.length ||
+      !shallowEqual(prevProps.items, items) ||
+      (Array.isArray(items[items.length - 1]) && 
+      (items[items.length - 1].length !== prevProps.items[prevProps.items.length - 1].length ||
+      !shallowEqual(prevProps.items, items)))
+      ) {
       this.virtualScroller.setItems(items, {
         // `preserveScrollPosition` property name is deprecated,
         // use `preserveScrollPositionOnPrependItems` instead.
