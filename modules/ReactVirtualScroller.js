@@ -441,7 +441,7 @@ function (_React$Component) {
       // is tracked and `this.itemsPropertyHasChanged` flag is set.
 
       if (!this.itemsPropertyWasChanged) {
-        this.itemsPropertyWasChanged = this.props.items !== this.previousItemsProperty;
+        this.itemsPropertyWasChanged = !shallowEqual(this.props.items, this.previousItemsProperty);
       }
 
       this.previousItemsProperty = this.props.items;

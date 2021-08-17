@@ -1778,10 +1778,12 @@ function arePreviousItemsPreserved(previousItems, newItems, offset) {
   // Check each item of the `previousItems` to determine
   // whether it's an "incremental" items update.
   // (an update when items are prepended or appended)
+  // Abort if newItems has been reset:
+  if (previousItems.length > newItems.length) return false;
   var i = 0;
 
   while (i < previousItems.length) {
-    if (newItems[offset + i] && newItems[offset + i].id !== previousItems[i].id || newItems[offset + i][0] && newItems[offset + i][0].id !== previousItems[i][0].id) {
+    if (newItems[offset + i] && newItems[offset + i].id !== previousItems[i].id || newItems[offset + i] && newItems[offset + i][0] && newItems[offset + i][0].id !== previousItems[i][0].id) {
       return false;
     }
 
