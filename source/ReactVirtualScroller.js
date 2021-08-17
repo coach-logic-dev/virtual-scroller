@@ -343,10 +343,11 @@ export default class ReactVirtualScroller extends React.Component {
     if (
       items.length !== prevProps.items.length ||
       !shallowEqual(prevProps.items, items) ||
-      (Array.isArray(items[items.length - 1]) && 
-      (items[items.length - 1].length !== prevProps.items[prevProps.items.length - 1].length ||
-      !shallowEqual(prevProps.items, items)))
-      ) {
+      (Array.isArray(items[items.length - 1]) &&
+        (items[items.length - 1].length !==
+          prevProps.items[prevProps.items.length - 1].length ||
+          !shallowEqual(prevProps.items, items)))
+    ) {
       this.virtualScroller.setItems(items, {
         // `preserveScrollPosition` property name is deprecated,
         // use `preserveScrollPositionOnPrependItems` instead.
@@ -447,8 +448,10 @@ export default class ReactVirtualScroller extends React.Component {
     // To handle that single case `this.previousItemsProperty`
     // is tracked and `this.itemsPropertyHasChanged` flag is set.
     if (!this.itemsPropertyWasChanged) {
-      this.itemsPropertyWasChanged =
-        this.props.items !== this.previousItemsProperty;
+      this.itemsPropertyWasChanged = !shallowEqual(
+        this.props.items,
+        this.previousItemsProperty
+      );
     }
     this.previousItemsProperty = this.props.items;
     if (this.itemsPropertyWasChanged && newItems !== previousItems) {
