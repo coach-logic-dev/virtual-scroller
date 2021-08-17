@@ -1745,7 +1745,7 @@ function arePreviousItemsPreserved(previousItems, newItems, offset) {
     if (
       (newItems[offset + i] &&
         newItems[offset + i].id !== previousItems[i].id) ||
-      (newItems[offset + i][0] &&
+      (newItems[offset + i] && newItems[offset + i][0] &&
         newItems[offset + i][0].id !== previousItems[i][0].id)
     ) {
       return false;
